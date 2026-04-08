@@ -1,5 +1,5 @@
-#define MULTIBOOT_MAGIC  0x1BADB002
-#define MULTIBOOT_FLAGS  0x00
+#define MULTIBOOT_MAGIC    0x1BADB002
+#define MULTIBOOT_FLAGS    0x00
 #define MULTIBOOT_CHECKSUM -(MULTIBOOT_MAGIC + MULTIBOOT_FLAGS)
 
 __attribute__((section(".multiboot"))) int multiboot_header[] = {
@@ -8,7 +8,11 @@ __attribute__((section(".multiboot"))) int multiboot_header[] = {
     MULTIBOOT_CHECKSUM
 };
 
-void kernel_main(void) {
+#include "drivers/vga/vga.h"
 
+void kernel_main(void) {
+    vga_init();
+    vga_print("Hello OS ! \n");
+    vga_print("test");
     while (1);
 }
