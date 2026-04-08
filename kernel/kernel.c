@@ -9,10 +9,21 @@ __attribute__((section(".multiboot"))) int multiboot_header[] = {
 };
 
 #include "drivers/vga/vga.h"
+#include "drivers/keyboard/keyboard.h"
 
 void kernel_main(void) {
     vga_init();
     vga_print("Hello OS ! \n");
     vga_print("test");
-    while (1);
+    keyboard_init();
+    while (1)
+    {
+        for(int i = 0; i = 1; i++) {
+            keyboard_key();
+            vga_print("\n");
+        }
+    }
+    
+    
 }
+

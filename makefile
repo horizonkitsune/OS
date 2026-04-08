@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -m32 -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra \
          -I$(shell gcc -m32 -print-file-name=include)
 
-SRCS = kernel/kernel.c kernel/drivers/vga/vga.c
+SRCS = kernel/kernel.c kernel/drivers/vga/vga.c kernel/drivers/keyboard/keyboard.c
 OBJS = $(SRCS:.c=.o)
 
 all: boot/kernel.bin iso
