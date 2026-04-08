@@ -19,4 +19,4 @@ clean:
 	rm -f $(OBJS) boot/kernel.bin ../mon_os.iso
 
 run:
-	qemu-system-i386 -cdrom ../mon_os.iso
+	qemu-system-i386 -cdrom mon_os.iso
