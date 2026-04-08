@@ -1,7 +1,9 @@
 CC = gcc
 CFLAGS = -m32 -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra
 
-SRCS = src/kermel/allocation.c
+SRCS = src/kermel/allocation/allocation.c \
+		src/kermel/pagination/pagination.c
+
 OBJS = $(SRCS:.c=.o)
 
 all: boot/kernel.bin iso

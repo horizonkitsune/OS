@@ -2,6 +2,8 @@
 typedef unsigned int size_t;
 #define NULL ((void *)0)
 
+#include "allocation.h"
+
 // Définition de la heap : 1 Mo de mémoire pour l'exemple
 #define HEAP_SIZE 1024 * 1024
 static char heap[HEAP_SIZE];
