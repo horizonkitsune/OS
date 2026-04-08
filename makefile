@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -m32 -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra
 
-SRCS = kernel/kernel.c
+SRCS = src/kermel/allocation.c
 OBJS = $(SRCS:.c=.o)
 
 all: boot/kernel.bin iso
@@ -13,7 +13,7 @@ boot/kernel.bin: $(OBJS)
 	$(CC) $(CFLAGS) -T linker.ld -o boot/kernel.bin $(OBJS)
 
 iso:
-	grub2-mkrescue -o ../mon_os.iso .
+	grub-mkrescue -o ../mon_os.iso .
 
 clean:
 	rm -f $(OBJS) boot/kernel.bin ../mon_os.iso
