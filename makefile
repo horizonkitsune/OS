@@ -1,8 +1,10 @@
-CC = gcc
-CFLAGS = -m32 -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra \
-         -Ikernel/include
+CC     = gcc
+CFLAGS = -m32 -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra
 
-SRCS = kernel/kernel.c kernel/drivers/vga/vga.c kernel/drivers/keyboard/keyboard.c
+SRCS = src/kernel/kernel.c \
+       src/kernel/mm/allocation.c \
+       src/kernel/mm/pagination.c \
+       src/kernel/process/process.c
 
 OBJS = $(SRCS:.c=.o)
 
@@ -14,14 +16,9 @@ all: boot/kernel.bin iso
 boot/kernel.bin: $(OBJS)
 	$(CC) $(CFLAGS) -T linker.ld -o boot/kernel.bin $(OBJS)
 
-<<<<<<< HEAD
 iso: boot/kernel.bin
 	mkdir -p build
-	grub2-mkrescue -o build/mon_os.iso . --exclude build
-=======
-iso:
-	grub-mkrescue -o ../mon_os.iso .
->>>>>>> 471d16b (add the file allocation for the os)
+	grub-mkrescue -o build/mon_os.iso . --exclude build
 
 clean:
 	rm -f $(OBJS) boot/kernel.bin build/mon_os.iso
