@@ -17,7 +17,7 @@ boot/kernel.bin: $(OBJS)
 	$(CC) $(CFLAGS) -T linker.ld -o boot/kernel.bin $(OBJS)
 
 iso:
-	grub-mkrescue -o mon_os.iso .
+	grub2-mkrescue -o mon_os.iso .
 
 clean:
 	rm -f $(OBJS) boot/kernel.bin mon_os.iso
