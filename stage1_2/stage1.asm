@@ -47,7 +47,7 @@ RET		;retour au call
 
 
 ;Data
-varTexte db 'stage 1, 0x0D, 0x0A, 0	;texte avec valeur 0 comme fin
+varTexte db 'stage 1', 0x0D, 0x0A, 0	;texte avec valeur 0 comme fin
 ReadPacket: times 16 db 0
 
 TIMES 510 - ($ - $$) db 0	;boucle pour remplir le reste des données de 0
