@@ -8,11 +8,30 @@ __attribute__((section(".multiboot"))) int multiboot_header[] = {
     MULTIBOOT_CHECKSUM
 };
 
+#include "mm/allocation.h"
+#include "mm/pagination.h"
+#include "process/process.h"
 #include "drivers/vga/vga.h"
+#include "drivers/keyboard/keyboard.h"
+#include "include/io.h"
 
-void kernel_main(void) {
+void kernel_main(void)
+{
+    init_heap();
+    init_pagination();
+    init_process_manager();
+
     vga_init();
-    vga_print("Hello OS ! \n");
-    vga_print("test");
-    while (1);
+    vga_print("Hello OS!\n");
+
+    keyboard_init();
+
+    while (1)
+    {
+        if (inb(0x64) & 0x01)
+        {
+            keyboard_key();
+            update_cursor();
+        }
+    }
 }

@@ -1,10 +1,13 @@
 CC     = gcc
-CFLAGS = -m32 -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra
+CFLAGS = -m32 -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra \
+         -Ikernel/include
 
-SRCS = src/kernel/kernel.c \
-       src/kernel/mm/allocation.c \
-       src/kernel/mm/pagination.c \
-       src/kernel/process/process.c
+SRCS = kernel/kernel.c \
+       kernel/mm/allocation.c \
+       kernel/mm/pagination.c \
+       kernel/process/process.c \
+       kernel/drivers/vga/vga.c \
+       kernel/drivers/keyboard/keyboard.c
 
 OBJS = $(SRCS:.c=.o)
 
