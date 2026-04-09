@@ -1,13 +1,13 @@
 CC     = gcc
 CFLAGS = -m32 -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra \
-         -Ikernel/include
+         -Isrc/kernel/include
 
-SRCS = kernel/kernel.c \
-       kernel/mm/allocation.c \
-       kernel/mm/pagination.c \
-       kernel/process/process.c \
-       kernel/drivers/vga/vga.c \
-       kernel/drivers/keyboard/keyboard.c
+SRCS = src/kernel/kernel.c \
+       src/kernel/mm/allocation.c \
+       src/kernel/mm/pagination.c \
+       src/kernel/process/process.c \
+       src/kernel/drivers/vga/vga.c \
+       src/kernel/drivers/keyboard/keyboard.c
 
 OBJS = $(SRCS:.c=.o)
 
@@ -17,6 +17,7 @@ all: boot/kernel.bin iso
 	$(CC) $(CFLAGS) -c $< -o $@
 
 boot/kernel.bin: $(OBJS)
+	mkdir -p boot
 	$(CC) $(CFLAGS) -T linker.ld -o boot/kernel.bin $(OBJS)
 
 iso: boot/kernel.bin
