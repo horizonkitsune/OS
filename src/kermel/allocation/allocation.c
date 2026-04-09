@@ -1,14 +1,12 @@
-// Types de base pour bare-metal
-typedef unsigned int size_t;
-#define NULL ((void *)0)
-
 #include "allocation.h"
+#include "../pagination/pagination.h"
 
-// Définition de la heap : 1 Mo de mémoire pour l'exemple
-#define HEAP_SIZE 1024 * 1024
+#define HEAP_SIZE (1024 * 1024)
+#define ALIGNMENT 4
+#define ALIGN(size) (((size) + (ALIGNMENT - 1)) & ~(ALIGNMENT - 1))
+
 static char heap[HEAP_SIZE];
 
-// Structure pour les blocs libres
 typedef struct block
 {
     size_t size;
@@ -17,16 +15,19 @@ typedef struct block
 
 static block_t *free_list = (block_t *)heap;
 
-// Initialisation de la heap
-void init_heap()
+void init_heap(void)
 {
     free_list->size = HEAP_SIZE - sizeof(block_t);
     free_list->next = NULL;
 }
 
-// Fonction d'allocation simple (first-fit)
 void *malloc(size_t size)
 {
+    if (size == 0)
+        return NULL;
+
+    size = ALIGN(size);
+
     block_t *current = free_list;
     block_t *prev = NULL;
 
@@ -34,56 +35,71 @@ void *malloc(size_t size)
     {
         if (current->size >= size + sizeof(block_t))
         {
-            // Diviser le bloc
             block_t *new_block = (block_t *)((char *)current + sizeof(block_t) + size);
             new_block->size = current->size - size - sizeof(block_t);
             new_block->next = current->next;
 
             current->size = size;
-            current->next = NULL; // Le bloc alloué n'est pas dans la free_list
+            current->next = NULL;
 
             if (prev)
-            {
                 prev->next = new_block;
-            }
             else
-            {
                 free_list = new_block;
-            }
 
             return (void *)((char *)current + sizeof(block_t));
         }
         prev = current;
         current = current->next;
     }
-    return NULL; // Pas assez de mémoire
+    return NULL;
 }
 
-// Fonction de libération (simple, sans fusion pour cet exemple)
 void free(void *ptr)
 {
     if (!ptr)
         return;
 
     block_t *block = (block_t *)((char *)ptr - sizeof(block_t));
-    block->next = free_list;
-    free_list = block;
-}
 
-// Fonction principale du kernel
-void kernel_main()
-{
-    init_heap();
+    // Insérer dans la free_list dans l'ordre des adresses (pour la coalescence)
+    block_t *current = free_list;
+    block_t *prev = NULL;
 
-    // Exemple d'utilisation
-    char *str = (char *)malloc(100);
-    if (str)
+    while (current && current < block)
     {
-        // Utiliser str
-        free(str);
+        prev = current;
+        current = current->next;
     }
 
-    // Boucle infinie pour éviter que le kernel se termine
+    block->next = current;
+    if (prev)
+        prev->next = block;
+    else
+        free_list = block;
+
+    // Fusionner avec le bloc suivant si adjacent
+    if (current != NULL &&
+        (char *)block + sizeof(block_t) + block->size == (char *)current)
+    {
+        block->size += sizeof(block_t) + current->size;
+        block->next = current->next;
+    }
+
+    // Fusionner avec le bloc précédent si adjacent
+    if (prev != NULL &&
+        (char *)prev + sizeof(block_t) + prev->size == (char *)block)
+    {
+        prev->size += sizeof(block_t) + block->size;
+        prev->next = block->next;
+    }
+}
+
+void kernel_main(void)
+{
+    init_heap();
+    init_pagination();
+
     while (1)
     {
     }
