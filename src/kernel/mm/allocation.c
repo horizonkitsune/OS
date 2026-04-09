@@ -1,5 +1,5 @@
 #include "allocation.h"
-#include "../pagination/pagination.h"
+#include "pagination.h"
 
 #define HEAP_SIZE (1024 * 1024)
 #define ALIGNMENT 4
@@ -92,15 +92,5 @@ void free(void *ptr)
     {
         prev->size += sizeof(block_t) + block->size;
         prev->next = block->next;
-    }
-}
-
-void kernel_main(void)
-{
-    init_heap();
-    init_pagination();
-
-    while (1)
-    {
     }
 }
