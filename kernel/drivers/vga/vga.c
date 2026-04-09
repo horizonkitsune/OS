@@ -8,7 +8,7 @@
 static int cursor_x = 0;
 static int cursor_y = 0;
 
-static void update_cursor(void) {
+void update_cursor(void) {
     uint16_t pos = cursor_y * VGA_WIDTH + cursor_x;
     outb(0x3D4, 0x0F);
     outb(0x3D5, (uint8_t)(pos & 0xFF));

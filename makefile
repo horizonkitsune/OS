@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -m32 -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra \
-         -I$(shell gcc -m32 -print-file-name=include)
+         -Ikernel/include
 
 SRCS = kernel/kernel.c kernel/drivers/vga/vga.c kernel/drivers/keyboard/keyboard.c
 OBJS = $(SRCS:.c=.o)
@@ -15,7 +15,7 @@ boot/kernel.bin: $(OBJS)
 
 iso: boot/kernel.bin
 	mkdir -p build
-	grub2-mkrescue -o build/mon_os.iso .
+	grub2-mkrescue -o build/mon_os.iso . --exclude build
 
 clean:
 	rm -f $(OBJS) boot/kernel.bin build/mon_os.iso
