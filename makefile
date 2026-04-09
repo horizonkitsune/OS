@@ -3,7 +3,8 @@ CFLAGS = -m32 -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra
 
 SRCS = src/kernel/kernel.c \
        src/kernel/mm/allocation.c \
-       src/kernel/mm/pagination.c
+       src/kernel/mm/pagination.c \
+       src/kernel/process/process.c
 
 OBJS = $(SRCS:.c=.o)
 
