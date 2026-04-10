@@ -10,20 +10,14 @@ __attribute__((section(".multiboot"))) int multiboot_header[] = {
 
 #include "drivers/vga/vga.h"
 #include "drivers/keyboard/keyboard.h"
+#include "inter/IDT.h"
 #include "include/io.h"
 
 void kernel_main(void) {
     vga_init();
-    vga_print("Hello OS ! \n");
-    vga_print("test \n");
-    keyboard_init();
-    while (1)
-    {
-        if(inb(0x64) & 0x01)
-            {
-                keyboard_key();
-                update_cursor();
-            }
-    }
+    vga_print("test OS\n");
+    idt_init();
+    vga_print("> ");
+    while (1);
 }
 
