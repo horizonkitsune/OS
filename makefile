@@ -1,55 +1,84 @@
 # ── Compilateurs ─────────────────────────────────
-CC      = gcc
-ASM     = nasm
-LD      = ld
+CC       = gcc
+ASM      = nasm
+LD       = ld
 
 # ── Flags ────────────────────────────────────────
-CFLAGS  = -ffreestanding -nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32
+CFLAGS   = -ffreestanding -nostdlib -nostdinc -fno-builtin -fno-stack-protector \
+           -m32 -Wall -Wextra \
+           -I kernel/include
+
 ASMFLAGS = -f elf32
-LDFLAGS = -T linker.ld -nostdlib -m elf_i386
+LDFLAGS  = -T linker.ld -nostdlib -m elf_i386
 
 # ── Dossiers ─────────────────────────────────────
-BUILD   = build
-SRC_DIRS = kernel
+BUILD  = build
+K      = kernel
 
-# ── Détection automatique des fichiers ───────────
-C_SRCS  = $(shell find $(SRC_DIRS) -name "*.c")
-ASM_SRCS = $(shell find $(SRC_DIRS) -name "*.asm")
+# ── Objets explicites ────────────────────────────
+OBJS = \
+	$(BUILD)/kernel.o            \
+	$(BUILD)/inter/isr.o         \
+	$(BUILD)/inter/IDT.o         \
+	$(BUILD)/vga/vga.o           \
+	$(BUILD)/keyboard/keyboard.o \
+	$(BUILD)/boot.o              \
+	$(BUILD)/inter/isr_asm.o
 
-# ── Génération des objets ─────────────────────────
-C_OBJS   = $(patsubst %.c,   $(BUILD)/%.o, $(C_SRCS))
-ASM_OBJS = $(patsubst %.asm, $(BUILD)/%.o, $(ASM_SRCS))
-OBJS     = $(C_OBJS) $(ASM_OBJS)
+# ── Cible principale ─────────────────────────────
+all: $(BUILD)/OS.iso
 
-# ── Cible principale ──────────────────────────────
-all: $(BUILD)/kernel.bin iso
-
+# ── Linkage ──────────────────────────────────────
 $(BUILD)/kernel.bin: $(OBJS)
+	@mkdir -p $(dir $@)
 	$(LD) $(LDFLAGS) -o $@ $^
 
-# ── Compilation .c ────────────────────────────────
-$(BUILD)/%.o: %.c
+# ── Règles C ─────────────────────────────────────
+$(BUILD)/kernel.o: $(K)/src/kernel.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# ── Compilation .asm ──────────────────────────────
-$(BUILD)/%.o: %.asm
+$(BUILD)/inter/isr.o: $(K)/src/inter/isr.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD)/inter/IDT.o: $(K)/src/inter/IDT.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD)/vga/vga.o: $(K)/src/vga/vga.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD)/keyboard/keyboard.o: $(K)/src/keyboard/keyboard.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# ── Règles ASM ───────────────────────────────────
+$(BUILD)/boot.o: $(K)/boot.asm
 	@mkdir -p $(dir $@)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
-iso: boot/kernel.bin
-	mkdir -p build
-	grub2-mkrescue -o build/OS.iso . --exclude build
+$(BUILD)/inter/isr_asm.o: $(K)/src/inter/isr.asm
+	@mkdir -p $(dir $@)
+	$(ASM) $(ASMFLAGS) $< -o $@
 
-# ── Nettoyage ─────────────────────────────────────
-clean:
-	rm -rf $(BUILD)
+# ── ISO ──────────────────────────────────────────
+$(BUILD)/OS.iso: $(BUILD)/kernel.bin boot/grub/grub.cfg
+	@mkdir -p $(BUILD)/iso/boot/grub
+	cp $(BUILD)/kernel.bin $(BUILD)/iso/boot/kernel.bin
+	cp boot/grub/grub.cfg $(BUILD)/iso/boot/grub/grub.cfg
+	grub2-mkrescue -o $(BUILD)/OS.iso $(BUILD)/iso
 
-# ── Lance dans QEMU ───────────────────────────────
+# ── Run ──────────────────────────────────────────
+run: $(BUILD)/OS.iso
+	qemu-system-i386 -cdrom $(BUILD)/OS.iso
+
 run_bin: $(BUILD)/kernel.bin
 	qemu-system-i386 -kernel $(BUILD)/kernel.bin
 
-run: 
-	qemu-system-i386 -cdrom build/OS.iso
+# ── Clean ────────────────────────────────────────
+clean:
+	rm -rf $(BUILD)
 
-.PHONY: all clean run
+.PHONY: all clean run run_bin

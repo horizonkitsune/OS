@@ -1,6 +1,6 @@
 #include "isr.h"
-#include "../drivers/vga/vga.h"
-#include "../include/io.h"
+#include "vga.h"
+#include "io.h"
 
 static const char* exception_messages[] = {
     "Division Error",           // 0
@@ -43,9 +43,18 @@ void isr_handler(register_t* regs) {
     for(;;);
 }
 
+void (*irq_routines[16])(register_t*) = {0};
+
 void irq_handler(register_t* regs) {
     // envoyer EOI (End Of Interrupt) au PIC
     // obligatoire sinon le PIC ne renverra plus d'interruptions
+    int irq = regs->num_int - 32;
+
+    if (irq >= 0 && irq < 16) {
+    if (irq_routines[irq])
+        irq_routines[irq](regs);
+}
+
     if (regs->num_int >= 40) {
         outb(0xA0, 0x20); // EOI au PIC2 si IRQ8-15
     }

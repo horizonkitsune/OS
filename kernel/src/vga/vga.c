@@ -1,5 +1,5 @@
 #include "vga.h"
-#include "../../include/io.h"
+#include "io.h"
 
 #define VGA_WIDTH  80
 #define VGA_HEIGHT 25
@@ -18,8 +18,10 @@ void update_cursor(void) {
 
 void enable_cursor(uint8_t cursor_start, uint8_t cursor_end) {
     outb(0x3D4, 0x0A);
+    uint8_t val = inb(0x3D5);
     outb(0x3D5, (inb(0x3D5) & 0xC0) | cursor_start);
     outb(0x3D4, 0x0B);
+    val = inb(0x3D5);
     outb(0x3D5, (inb(0x3D5) & 0xE0) | cursor_end);
 }
 
