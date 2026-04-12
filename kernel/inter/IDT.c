@@ -2,7 +2,7 @@
 #include "../drivers/keyboard/keyboard.h"
 #include "IDT.h"
 
-#define IDT_SIZE 256
+#define IDT_SIZE 256 // table idt de 256 bits
 
 struct IDT_entry {
     unsigned short int offset_lowerbits; // partie basse de l'adresse du handler
@@ -21,7 +21,7 @@ struct idt_ptr_struct {
 
 static void load_idt(struct idt_ptr_struct *idt_ptr) {
     __asm__ volatile ("lidt %0"::"m"(*idt_ptr)); // chargement idt dans le cpu
-    __asm__ volatile ("sti"); // activation interuption, cli desactive interuption
+    sti(); // activation interuption, cli desactive interuption
 }
 
 void idt_init(void) {
