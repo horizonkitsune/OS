@@ -23,6 +23,24 @@ void enable_cursor(uint8_t cursor_start, uint8_t cursor_end) {
     outb(0x3D5, (inb(0x3D5) & 0xE0) | cursor_end);
 }
 
+static void scroll(void) {
+    volatile uint16_t *vga = VGA_MEMORY;
+
+    // décale toutes les lignes d'une vers le haut
+    for (int y = 0; y < VGA_HEIGHT - 1; y++) {
+        for (int x = 0; x < VGA_WIDTH; x++) {
+            vga[y * VGA_WIDTH + x] = vga[(y + 1) * VGA_WIDTH + x];
+        }
+    }
+
+    // efface la dernière ligne
+    for (int x = 0; x < VGA_WIDTH; x++) {
+        vga[(VGA_HEIGHT - 1) * VGA_WIDTH + x] = (uint16_t)(' ' | (0x0F << 8));
+    }
+
+    cursor_y = VGA_HEIGHT - 1;
+}
+
 void vga_init(void) {
     volatile uint16_t *vga = VGA_MEMORY;
     for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++)
@@ -47,7 +65,7 @@ void vga_putchar(char c) {
         }
     }
     if (cursor_y >= VGA_HEIGHT) {
-        cursor_y = VGA_HEIGHT - 1;
+        scroll();
     }
     update_cursor();
 }
@@ -56,3 +74,4 @@ void vga_print(const char *str) {
     while (*str)
         vga_putchar(*str++);
 }
+
