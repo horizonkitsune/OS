@@ -11,3 +11,11 @@ static inline uint8_t inb(uint16_t port) {
     __asm__ volatile ("inb %1, %0" : "=a"(value) : "Nd"(port));
     return value;
 }
+
+static inline void sti() {
+    __asm__ volatile ("sti");
+}
+
+static inline void cli() {
+    __asm__ volatile ("cli");
+}
